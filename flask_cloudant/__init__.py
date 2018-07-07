@@ -103,6 +103,15 @@ class FlaskCloudant(object):
         doc.delete()
         self.__disconnect__()
 
+    def all_docs(self):
+        """
+        return all_docs
+        """
+        self.__connect__()
+        all_docs = self._db.all_docs()
+        self.__disconnect__()
+        return all_docs
+
     @staticmethod
     def __connect__():
         FlaskCloudant.CLIENT.connect()
