@@ -14,10 +14,8 @@ __version__ = '0.0.1.dev'
 
 class FlaskCloudant(object):
     """
-    Creates a connection to Cloudant server. Needs a `config.py` file
-    with the `CLOUDANT_USER`, `CLOUDANT_PWD` and `CLOUDANT_DB`.
-    The `CLOUDANT_ACCOUNT` is optional, if it is not setted, FlaskCloudant
-    will use `CLOUDANT_USER` as the account.
+    Creates a connection to CoudcDB server. Needs a `config.py` file
+    with the `COUCH_USER`, `COUCH_PWD` and `COUCH_DB`.
 
     :param str app: Flask app initialized with `Flask(__name__)`.
     """
@@ -26,31 +24,30 @@ class FlaskCloudant(object):
 
     def __init__(self, app=None, **kwargs):
         if app is not None:
-            self.__init_app__(app)
+            self.init_app(app)
 
-    def __init_app__(self, app):
+    def init_app(self, app):
         """
         Initializes the connection using the settings from `config.py`.
         """
-        cloudant_user = app.config.get('CLOUDANT_USER')
-        cloudant_pwd = app.config.get('CLOUDANT_PWD')
-        cloudant_account = app.config.get('CLOUDANT_ACCOUNT', cloudant_user)
-        cloudant_database = app.config.get('CLOUDANT_DB')
+        couch_user = app.config.get('COUCH_USER')
+        couch_pwd = app.config.get('COUCH_PWD')
+        couch_db = app.config.get('COUCH_DB')
+        couch_url = app.config.get('COUCH_URL')
 
         try:
-            FlaskCloudant.CLIENT = cloudant.Cloudant(cloudant_user,
-                                                     cloudant_pwd,
-                                                     account=cloudant_account)
+            FlaskCloudant.CLIENT = cloudant.CouchDB(couch_user, couch_pwd,
+                                                     url=couch_url)
             self.__connect__()
-            self._db = FlaskCloudant.CLIENT[cloudant_database]
+            self._db = FlaskCloudant.CLIENT[couch_db]
             self.__disconnect__()
         except CloudantClientException as ex:
             raise FlaskCloudantException(ex.status_code)
         except HTTPError as ex:
             raise FlaskCloudantException(ex.response.status_code,
-                                         cloudant_user)
+                                         couch_user)
         except KeyError:
-            raise FlaskCloudantException(400, cloudant_database)
+            raise FlaskCloudantException(400, couch_db)
 
     def get(self, document_id):
         """
