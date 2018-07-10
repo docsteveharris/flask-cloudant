@@ -103,12 +103,12 @@ class FlaskCloudant(object):
         doc.delete()
         self.__disconnect__()
 
-    def all_docs(self):
+    def all_docs(self, **kwargs):
         """
-        return all_docs
+        return all_docs object from client database
         """
         self.__connect__()
-        all_docs = self._db.all_docs()
+        all_docs = self._db.all_docs(**kwargs)
         self.__disconnect__()
         return all_docs
 
